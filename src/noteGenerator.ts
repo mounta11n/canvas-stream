@@ -33,6 +33,11 @@ const placeholderNoteHeight = 60
  */
 const emptyNoteHeight = 100
 
+/**
+ * Fallback encoding model to use for custom models
+ */
+const CUSTOM_MODEL_FALLBACK_ENCODING = CHAT_MODELS.GPT_4o.name
+
 export function noteGenerator(
 	app: App,
 	settings: ChatStreamSettings,
@@ -237,9 +242,15 @@ export function noteGenerator(
 				logDebug('messages', messages)
 
 				// Use customModelName if Custom is selected, otherwise use apiModel
-				const modelToUse = settings.apiModel === 'Custom' 
-					? settings.customModelName 
-					: settings.apiModel
+				let modelToUse = settings.apiModel
+				if (settings.apiModel === 'Custom') {
+					if (!settings.customModelName || settings.customModelName.trim() === '') {
+						new Notice('Please enter a custom model name in the plugin settings')
+						canvas.removeNode(created)
+						return
+					}
+					modelToUse = settings.customModelName
+				}
 
 				const generated = await getChatGPTCompletion(
 					settings.apiKey,
@@ -293,9 +304,9 @@ export function noteGenerator(
 
 function getEncoding(settings: ChatStreamSettings) {
 	const model: ChatModelSettings | undefined = chatModelByName(settings.apiModel)
-	// For Custom model, use gpt-4o encoding as fallback
+	// For Custom model, use fallback encoding
 	const encodingModel = settings.apiModel === 'Custom' 
-		? CHAT_MODELS.GPT_4o.name 
+		? CUSTOM_MODEL_FALLBACK_ENCODING 
 		: (model?.encodingFrom || model?.name || DEFAULT_SETTINGS.apiModel)
 	return encodingForModel(encodingModel as TiktokenModel)
 }
