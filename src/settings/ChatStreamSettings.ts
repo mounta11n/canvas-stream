@@ -45,6 +45,11 @@ export interface ChatStreamSettings {
 	 * The maximum depth of ancestor notes to include. 0 means no limit.
 	 */
 	maxDepth: number
+
+	/**
+	 * Custom model name when "Custom" is selected
+	 */
+	customModelName: string
 }
 
 export const DEFAULT_SYSTEM_PROMPT = `
@@ -64,7 +69,8 @@ export const DEFAULT_SETTINGS: ChatStreamSettings = {
 	debug: false,
 	maxInputTokens: 0,
 	maxResponseTokens: 0,
-	maxDepth: 0
+	maxDepth: 0,
+	customModelName: ''
 }
 
 export function getModels() {
