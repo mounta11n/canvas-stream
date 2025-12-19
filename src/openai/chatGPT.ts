@@ -62,6 +62,10 @@ export const CHAT_MODELS = {
 	GPT_4_32K_0613: {
 		name: 'gpt-4-32k-0613',
 		tokenLimit: 32768
+	},
+	CUSTOM: {
+		name: 'Custom',
+		tokenLimit: 128000
 	}
 }
 

@@ -236,10 +236,15 @@ export function noteGenerator(
 			try {
 				logDebug('messages', messages)
 
+				// Use customModelName if Custom is selected, otherwise use apiModel
+				const modelToUse = settings.apiModel === 'Custom' 
+					? settings.customModelName 
+					: settings.apiModel
+
 				const generated = await getChatGPTCompletion(
 					settings.apiKey,
 					settings.apiUrl,
-					settings.apiModel,
+					modelToUse,
 					messages,
 					{
 						max_tokens: settings.maxResponseTokens || undefined,
@@ -288,9 +293,11 @@ export function noteGenerator(
 
 function getEncoding(settings: ChatStreamSettings) {
 	const model: ChatModelSettings | undefined = chatModelByName(settings.apiModel)
-	return encodingForModel(
-		(model?.encodingFrom || model?.name || DEFAULT_SETTINGS.apiModel) as TiktokenModel
-	)
+	// For Custom model, use gpt-4o encoding as fallback
+	const encodingModel = settings.apiModel === 'Custom' 
+		? CHAT_MODELS.GPT_4o.name 
+		: (model?.encodingFrom || model?.name || DEFAULT_SETTINGS.apiModel)
+	return encodingForModel(encodingModel as TiktokenModel)
 }
 
 function getTokenLimit(settings: ChatStreamSettings) {

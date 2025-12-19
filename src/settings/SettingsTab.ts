@@ -15,6 +15,8 @@ export class SettingsTab extends PluginSettingTab {
 
 		containerEl.empty()
 
+		let customModelNameSetting: Setting
+
 		new Setting(containerEl)
 			.setName('Model')
 			.setDesc('Select the GPT model to use.')
@@ -26,8 +28,31 @@ export class SettingsTab extends PluginSettingTab {
 				cb.onChange(async (value) => {
 					this.plugin.settings.apiModel = value
 					await this.plugin.saveSettings()
+					
+					// Show/hide custom model name field based on selection
+					if (customModelNameSetting) {
+						customModelNameSetting.settingEl.style.display = 
+							value === 'Custom' ? '' : 'none'
+					}
 				})
 			})
+
+		customModelNameSetting = new Setting(containerEl)
+			.setName('Custom Model Name')
+			.setDesc('Enter the model name to use when "Custom" is selected (e.g., claude-3-opus, mistral-large, anthropic/claude-3.5-sonnet)')
+			.addText((text) => {
+				text
+					.setPlaceholder('Model name')
+					.setValue(this.plugin.settings.customModelName)
+					.onChange(async (value) => {
+						this.plugin.settings.customModelName = value
+						await this.plugin.saveSettings()
+					})
+			})
+
+		// Initially hide/show based on current selection
+		customModelNameSetting.settingEl.style.display = 
+			this.plugin.settings.apiModel === 'Custom' ? '' : 'none'
 
 		new Setting(containerEl)
 			.setName('API key')
